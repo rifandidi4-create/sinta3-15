@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SINTA Archive | High-Profile Journal Syndicate</title>
+  
+  <!-- Font Awesome Icons & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Three.js (3D Dynamic Background) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    /* ==========================================================
+       THEME STYLES & ATMOSPHERE (LUXURY DARK / VILLAIN ELEGANCE)
+       ========================================================== */
+    :root {
+      --bg-base: #08070b;
+      --panel-bg: rgba(18, 16, 26, 0.75);
+      --panel-border: rgba(212, 175, 55, 0.25);
+      --gold-primary: #d4af37;
+      --gold-glow: #ffd700;
+      --crimson-accent: #990000;
+      --crimson-glow: #ff1a1a;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --font-heading: 'Cinzel', serif;
+      --font-sub: 'Rajdhani', sans-serif;
+      --font-body: 'Space Grotesk', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Canvas 3D Latar Belakang */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Ambient Dark Vignette overlay */
+    .vignette {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle, transparent 40%, rgba(3, 2, 6, 0.85) 90%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, var(--crimson-accent), var(--gold-primary));
+      border-radius: 4px;
+    }
+
+    /* ==========================================================
+       HEADER & IDENTITY BAR
+       ========================================================== */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(8, 7, 11, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+
+    .brand-title {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(45deg, #fff, var(--gold-primary), var(--crimson-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-title i {
+      color: var(--gold-primary);
+      -webkit-text-fill-color: initial;
+      filter: drop-shadow(0 0 8px var(--gold-glow));
+    }
+
+    .curator-profile {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-family: var(--font-sub);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
+    }
+
+    .curator-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid var(--gold-primary);
+      box-shadow: 0 0 10px var(--crimson-accent);
+      object-fit: cover;
+    }
+
+    .curator-info p { margin: 0; line-height: 1.2; }
+    .curator-name { font-weight: 700; color: #fff; letter-spacing: 1px; font-size: 0.95rem; }
+    .curator-role { font-size: 0.8rem; color: var(--gold-primary); }
+
+    /* ==========================================================
+       MAIN LAYOUT (GRID VIEW)
+       ========================================================== */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .section-header h1 {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      letter-spacing: 3px;
+      color: #fff;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(153, 0, 0, 0.6);
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-family: var(--font-sub);
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+
+    /* Grid Layout */
+    .journal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    /* 3D Dynamic Card Effects */
+    .card-3d-wrap {
+      perspective: 1000px;
+    }
+
+    .journal-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(8px);
+      transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .journal-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .card-3d-wrap:hover .journal-card {
+      transform: translateY(-8px) rotateX(4deg) rotateY(-2deg);
+      border-color: var(--gold-primary);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.9), 0 0 20px rgba(212, 175, 55, 0.2);
+    }
+
+    .card-3d-wrap:hover .journal-card::before {
+      left: 100%;
+    }
+
+    .journal-badge {
+      display: inline-block;
+      align-self: flex-start;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-family: var(--font-sub);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: rgba(153, 0, 0, 0.4);
+      border: 1px solid var(--crimson-accent);
+      color: #ff9999;
+      margin-bottom: 1rem;
+    }
+
+    .journal-badge.sinta-high {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--gold-primary);
+      color: var(--gold-glow);
+    }
+
+    .journal-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .journal-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .journal-meta span i {
+      color: var(--gold-primary);
+      width: 18px;
+    }
+
+    .journal-snippet {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    .card-action {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .fee-tag {
+      font-family: var(--font-sub);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--gold-primary);
+    }
+
+    .btn-inspect {
+      background: linear-gradient(135deg, var(--crimson-accent), #400000);
+      border: 1px solid var(--crimson-glow);
+      color: #fff;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      font-family: var(--font-sub);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .journal-card:hover .btn-inspect {
+      background: linear-gradient(135deg, var(--gold-primary), #8a7322);
+      border-color: var(--gold-glow);
+      color: #000;
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    /* ==========================================================
+       MODAL / DETAIL ZOOM OVERLAY
+       ========================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(3, 2, 6, 0.9);
+      backdrop-filter: blur(15px);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-container {
+      background: #0f0d17;
+      border: 1px solid var(--gold-primary);
+      border-radius: 16px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2.5rem;
+      position: relative;
+      box-shadow: 0 0 50px rgba(153, 0, 0, 0.5), inset 0 0 30px rgba(212, 175, 55, 0.05);
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-overlay.active .modal-container {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+      color: var(--crimson-glow);
+    }
+
+    .modal-header-badge {
+      display: inline-block;
+      padding: 0.3rem 0.9rem;
+      border-radius: 4px;
+      font-family: var(--font-sub);
+      font-size: 0.9rem;
+      font-weight: 700;
+      background: var(--crimson-accent);
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .modal-title {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      color: #fff;
+      margin-bottom: 1.5rem;
+      line-height: 1.3;
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 1rem;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .detail-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 1.2rem;
+    }
+
+    .detail-card h4 {
+      font-family: var(--font-sub);
+      color: var(--gold-primary);
+      font-size: 1.1rem;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-card p, .detail-card ul {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .detail-card ul {
+      list-style-type: square;
+      padding-left: 1.2rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--panel-border);
+      padding-top: 1.5rem;
+    }
+
+    .btn-portal {
+      background: linear-gradient(135deg, var(--gold-primary), #997a15);
+      color: #000;
+      padding: 0.75rem 1.8rem;
+      border-radius: 8px;
+      font-family: var(--font-sub);
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .btn-portal:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.8);
+      color: #000;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--panel-border);
+      padding: 2rem;
+      text-align: center;
+      font-family: var(--font-sub);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      background: rgba(4, 3, 6, 0.95);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 768px) {
+      header { flex-direction: column; gap: 1rem; text-align: center; }
+      .modal-container { padding: 1.5rem; }
+      .section-header h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D Canvas Dynamic Background -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="vignette"></div>
+
+  <!-- Header & Profil Pembimbing -->
+  <header>
+    <div class="brand-title">
+      <i class="fa-solid fa-user-ninja"></i> SINTA Syndicate
+    </div>
+    <div class="curator-profile">
+      <!-- Mock visual profile placeholder -->
+      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Curator" class="curator-avatar">
+      <div class="curator-info">
+        <p class="curator-name">Muhammad Nur Rifandi</p>
+        <p class="curator-role">Siswa PKL (Al Muhtadin Depok)</p>
+        <p class="curator-role" style="font-size: 0.75rem; color: #a1a1aa; margin-top:2px;">
+          Pembimbing: Pak Riadi Marta Dinata, S.Ti., M.Kom (KaLab FSTT ISTN)
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container Utama Grid -->
+  <div class="container">
+    <div class="section-header">
+      <h1>Daftar Repositori SINTA Jurnal</h1>
+      <p>Arsip Penelitian Berkarakteristik Premium &amp; Terverifikasi SINTA / Kemdiktisaintek</p>
+    </div>
+
+    <!-- Grid Kartu Jurnal 3D -->
+    <div class="journal-grid" id="journalGrid">
+      <!-- Generated via JS -->
+    </div>
+  </div>
+
+  <!-- Modal Zoom Detail -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal-container">
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+      <span class="modal-header-badge" id="modalBadge">SINTA VERIFIED</span>
+      <h2 class="modal-title" id="modalTitle">Nama Jurnal</h2>
+
+      <div class="detail-grid">
+        <div class="detail-card">
+          <h4><i class="fa-solid fa-info-circle"></i> Informasi Akademik</h4>
+          <p id="modalAcademicInfo">Loading...</p>
+        </div>
+
+        <div class="detail-card">
+          <h4><i class="fa-solid fa-coins"></i> Skema Biaya Publikasi</h4>
+          <p id="modalFeeInfo">Loading...</p>
+        </div>
+
+        <div class="detail-card">
+          <h4><i class="fa-solid fa-crosshairs"></i> Focus & Scope</h4>
+          <div id="modalScopeInfo">Loading...</div>
+        </div>
+
+        <div class="detail-card">
+          <h4><i class="fa-solid fa-building-columns"></i> Penerbit & Kelembagaan</h4>
+          <p id="modalPublisherInfo">Loading...</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <a href="#" target="_blank" id="modalJournalLink" class="btn-portal">
+          Buka Halaman Jurnal Resmi <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 - Repositori SINTA Jurnal. Dikembangkan oleh Muhammad Nur Rifandi | Bimbingan: Riadi Marta Dinata, S.Ti., M.Kom</p>
+    <p style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">Sumber Data Resmi: Kemdiktisaintek (sinta.kemdiktisaintek.go.id)</p>
+  </footer>
+
+  <script>
+    /* ==========================================================
+       DATA DATABASE JURNAL SINTA (EKSPLISIT DARI DOKUMEN SOURCE)
+       ========================================================== */
+    const journalDatabase = [
+      {
+        id: 1,
+        title: "Jurnal Manajemen Transportasi & Logistik (JMTRANSLOG)",
+        shortTitle: "JMTL",
+        sinta: "Terverifikasi (No-Fee)",
+        issn: "P-ISSN: 2355-472X | E-ISSN: 2442-3149",
+        publisher: "Pascasarjana Manajemen Transportasi, ITL Trisakti",
+        fees: "Rp0 / Gratis (No-fee publication policy)",
+        link: "https://journal.itltrisakti.ac.id/index.php/jmtranslog",
+        snippet: "Menyebarluaskan penelitian ilmiah orisinal dalam manajemen transportasi, logistik, dan supply chain berbasis keberlanjutan.",
+        details: {
+          academic: "Frekuensi: 3x per tahun (Maret, Juli, November). Lisensi CC BY-NC 4.0. Editor-in-Chief: Dr. Dinar Dewi Kania. Menggunakan OJS/PKP.",
+          scope: "Transport Management, Multimodal Transport, Logistics Management, Supply Chain Management, Transport & Tourism, Transport & Environment.",
+          publisher: "Pascasarjana Manajemen Transportasi, Institut Transportasi dan Logistik Trisakti (ITL Trisakti), Jakarta Timur."
+        }
+      },
+      {
+        id: 2,
+        title: "JIPFRI (Jurnal Inovasi Pendidikan Fisika dan Riset Ilmiah)",
+        shortTitle: "JIPFRI",
+        sinta: "Terakreditasi SINTA",
+        issn: "P-ISSN: 2549-905X | E-ISSN: 2549-9076",
+        publisher: "Universitas Nurul Huda (Physics Education)",
+        fees: "Submission: Rp0 | APC: Rp500.000 (Domestik) / USD 35 (Intl)",
+        link: "https://journal.unuha.ac.id/index.php/JIPFRI/index",
+        snippet: "Fokus pada inovasi pendidikan fisika, riset eksperimental, dan R&D. Menolak literature review murni.",
+        details: {
+          academic: "Frekuensi: 2 Issue per tahun (Mei & November). DOI Prefix: 10.30599/jipfri. Editor-in-Chief: Dr. Thoha Firdaus, M.Pd.Si.",
+          scope: "Pengembangan Model Pembelajaran Fisika, Remediasi Miskonsepsi, Media & Teknologi Pendidikan, Fisika Murni & Terapan, Instrumentasi.",
+          publisher: "Program Studi Pendidikan Fisika, Universitas Nurul Huda."
+        }
+      },
+      {
+        id: 3,
+        title: "Jurnal Kesehatan Komunitas (Keskom)",
+        shortTitle: "Keskom",
+        sinta: "SINTA Registered",
+        issn: "Dalam proses verifikasi",
+        publisher: "STIKES Hang Tuah Pekanbaru / HTP",
+        fees: "Publication Fee: Rp750.000 (Submission tercantum Rp0 namun ada catatan syarat)",
+        link: "https://jurnal.htp.ac.id/index.php/keskom/id",
+        snippet: "Kajian komprehensif kesehatan masyarakat, epidemiologi, K3, dan kebijakan kesehatan komunitas.",
+        details: {
+          academic: "Frekuensi: 3x per tahun (April, Agustus, Desember). Memuat naskah hasil penelitian dan naskah konsep.",
+          scope: "Epidemiologi, Kesehatan Lingkungan, Promosi Kesehatan, Kesehatan Reproduksi, K3, Kebijakan Kesehatan, Keperawatan/Kebidanan Komunitas.",
+          publisher: "STIKES Hang Tuah Pekanbaru."
+        }
+      },
+      {
+        id: 4,
+        title: "Jurnal Teknologi Informasi dan Pendidikan (JTIP)",
+        shortTitle: "JTIP",
+        sinta: "SINTA 3",
+        issn: "P-ISSN: 2086-4981 | E-ISSN: 2620-6390",
+        publisher: "Universitas Negeri Padang (APTEKINDO)",
+        fees: "Submission: Rp0 | Publication/APC: Rp1.000.000",
+        link: "https://tip.ppj.unp.ac.id/index.php/tip/index",
+        snippet: "Publikasi berbahasa Inggris seputar integrasi teknologi informasi, software engineering, dan media pembelajaran.",
+        details: {
+          academic: "Frekuensi: 2x per tahun (Maret & September). Terindeks DOAJ & CrossRef. Menggunakan Double-Blind Peer Review.",
+          scope: "Learning Media, Virtual Learning Environment, Software Engineering, IoT, AR/VR, HCI, Wireless Sensor Networks.",
+          publisher: "Universitas Negeri Padang bekerjasama dengan APTEKINDO."
+        }
+      },
+      {
+        id: 5,
+        title: "PRISMA (Pendidikan Matematika)",
+        shortTitle: "PRISMA",
+        sinta: "SINTA Registered",
+        issn: "P-ISSN: 2089-3604 | E-ISSN: 2614-4611",
+        publisher: "Universitas Suryakancana",
+        fees: "Submission: Rp0 | APC: Rp1.000.000 (Setelah Accepted)",
+        link: "https://jurnal.unsur.ac.id/index.php/prisma",
+        snippet: "Jurnal ilmiah bereputasi khusus inovasi dan strategi pengajaran serta kajian etnomatematika.",
+        details: {
+          academic: "Frekuensi: 2x per tahun (Juni & Desember). Bahasa publikasi: Inggris. Menggunakan Double-blind review.",
+          scope: "Mathematics Learning Model, Media Learning, Curriculum, Assessment & Evaluation, Ethnomathematics, Didactical Design, Lesson Study.",
+          publisher: "Universitas Suryakancana."
+        }
+      },
+      {
+        id: 6,
+        title: "Jurnal Ilmu Pangan dan Hasil Pertanian (JIPHP)",
+        shortTitle: "JIPHP",
+        sinta: "SINTA Registered",
+        issn: "E-ISSN: 2581-110X",
+        publisher: "Universitas PGRI Semarang",
+        fees: "Submission: Rp0 | Publication Fee: Rp300.000 (Fast Track: Rp300.000)",
+        link: "https://journal.upgris.ac.id/index.php/jiphp/index",
+        snippet: "Fokus riset ilmu pangan, mikrobiologi pangan, biokimia, dan pengolahan hasil pertanian.",
+        details: {
+          academic: "Proses regular 2-4 bulan. Tersedia skema Waiver bagi penulis yang membutuhkan bantuan dana.",
+          scope: "Food Microbiology, Food Biochemistry, Food Chemistry, Food Engineering, Food Waste Industry.",
+          publisher: "Universitas PGRI Semarang."
+        }
+      },
+      {
+        id: 7,
+        title: "Pioneer: Journal of Language and Literature",
+        shortTitle: "Pioneer",
+        sinta: "SINTA Registered",
+        issn: "P-ISSN: 2338-5243 | E-ISSN: 2655-8718",
+        publisher: "Fakultas Sastra, Universitas Abdurachman Saleh Situbondo",
+        fees: "Domestik: Rp600.000 (Sub 150k + Pub 450k) | Internasional: GRATIS (Rp0)",
+        link: "https://unars.ac.id/ojs/index.php/pioneer/index",
+        snippet: "Wadah ilmiah linguistik terapan, kajian sastra komparatif, dan metode pengajaran bahasa asing.",
+        details: {
+          academic: "Penulis Internasional dibebaskan dari seluruh biaya untuk mendorong kolaborasi global.",
+          scope: "SLA, Discourse Analysis, Computational Linguistics, Translation, Sociolinguistics, Literature & Environment, Literature & Ethics.",
+          publisher: "Faculty of Letters, Universitas Abdurachman Saleh Situbondo (UNARS)."
+        }
+      },
+      {
+        id: 8,
+        title: "Journal of Entrepreneurship Bisnis Manajemen Akuntansi (E-BISMA)",
+        shortTitle: "E-BISMA",
+        sinta: "SINTA 2",
+        issn: "P-ISSN: 2774-8790 | E-ISSN: 2774-8804",
+        publisher: "Universitas Widya Mataram",
+        fees: "Submission: Rp0 | Publication Fee: Rp1.500.000",
+        link: "https://ejournal.widyamataram.ac.id/index.php/j-mae/index",
+        snippet: "Jurnal bereputasi Sinta 2 untuk kajian strategis manajemen, akuntansi publik/syariah, dan kewirausahaan digital.",
+        details: {
+          academic: "Open Access & Peer-Reviewed. Terindeks Copernicus, Crossref, BASE, Harvard Library, Dimensions.",
+          scope: "Strategic Management, Marketing, Finance, HR, Public/Islamic Accounting, Auditing, Digital-preneurship, Socio-preneurship.",
+          publisher: "Universitas Widya Mataram."
+        }
+      },
+      {
+        id: 9,
+        title: "Khazanah Sosial",
+        shortTitle: "Khazanah Sosial",
+        sinta: "SINTA Registered",
+        issn: "Terverifikasi OJS UIN SGD",
+        publisher: "UIN Sunan Gunung Djati Bandung",
+        fees: "APC: Rp4.000.000 (Tersedia Waiver 50% untuk Low-Income Economies)",
+        link: "https://khazanah.uinsgd.ac.id/index.php/ks/index",
+        snippet: "Analisis dinamika sosiologi, gerakan sosial, politik pemerintahan, dan perubahan budaya digital.",
+        details: {
+          academic: "Independensi editorial terjamin. APC dibayarkan hanya setelah artikel dinyatakan Accepted.",
+          scope: "Social Structure, Gender & Identity, Digital Disruption, Social Movements, Politics & Democracy, Radicalization & Terrorism.",
+          publisher: "UIN Sunan Gunung Djati Bandung."
+        }
+      },
+      {
+        id: 10,
+        title: "Jurnal Peternakan Lokal",
+        shortTitle: "JPL",
+        sinta: "SINTA 3 (Mulai Vol 6 No 1 2024)",
+        issn: "E-ISSN: 2685-7588",
+        publisher: "Universitas Muslim Maros",
+        fees: "Submission: Rp0 | Review Fee: Rp500.000 | Publication: Rp0",
+        link: "https://ejournals.umma.ac.id/index.php/peternakan/index",
+        snippet: "Pengembangan riset keunggulan ternak lokal Indonesia, nutrisi pakan, dan sosio-ekonomi peternakan.",
+        details: {
+          academic: "Terakreditasi SINTA 3 berdasarkan SK No. 10/C/C3/DT.05.00/2025. Terbit Maret & September.",
+          scope: "Produksi Ternak, Sosial Ekonomi Peternakan, Nutrisi Ternak, Teknologi Hasil Ternak.",
+          publisher: "Prodi Peternakan, FAPERTAHUT, Universitas Muslim Maros."
+        }
+      },
+      {
+        id: 11,
+        title: "Al-Infaq: Jurnal Ekonomi Islam",
+        shortTitle: "Al-Infaq",
+        sinta: "SINTA Registered",
+        issn: "Terbit Sejak 2010",
+        publisher: "Universitas Ibn Khaldun Bogor",
+        fees: "Publication Fee: Rp500.000",
+        link: "https://ejournal2.uika-bogor.ac.id/index.php/alinfaq/index",
+        snippet: "Riset perbankan syariah, ekonometrika Islam, serta pengelolaan ZISWAF dan industri halal.",
+        details: {
+          academic: "Mitra: Masyarakat Ekonomi Syariah (MES) Bogor & ICIFE Indonesia. Bahasa: Indonesia & Inggris.",
+          scope: "Islamic Economics, Banking & Finance, Zakat Infaq Sadaqah Waqaf, Halal Industry, Econometrics, Islamic Marketing.",
+          publisher: "Pascasarjana & Fakultas Agama Islam, Universitas Ibn Khaldun Bogor."
+        }
+      },
+      {
+        id: 12,
+        title: "Jurnal Tadris Matematika (JTM)",
+        shortTitle: "JTM",
+        sinta: "SINTA Registered",
+        issn: "Terverifikasi OJS UIN Satu",
+        publisher: "UIN Sayyid Ali Rahmatullah Tulungagung",
+        fees: "GRATIS / Rp0 (Submission, Editing, Publication)",
+        link: "https://ejournal.uinsatu.ac.id/index.php/jtm/index",
+        snippet: "Jurnal terbuka bebas biaya seputar model pembelajaran matematika dan integrasi nilai-nilai Islam.",
+        details: {
+          academic: "Kebijakan 100% No Fee untuk mendukung diseminasi hasil penelitian pedagogi matematika.",
+          scope: "Mathematical Thinking, Learning Media, PCK, Theoretical Study, Integration of Mathematics & Islamic Values.",
+          publisher: "UIN Sayyid Ali Rahmatullah Tulungagung."
+        }
+      },
+      {
+        id: 13,
+        title: "Benchmarking: Jurnal Manajemen Pendidikan Islam",
+        shortTitle: "Benchmarking",
+        sinta: "Terakreditasi SINTA",
+        issn: "Terverifikasi OJS UINSU",
+        publisher: "UIN Sumatera Utara",
+        fees: "APC / Processing Fee: Rp1.500.000",
+        link: "https://jurnal.uinsu.ac.id/index.php/benchmarking/index",
+        snippet: "Kajian kepemimpinan Islam dan manajemen mutu lembaga pendidikan formal & non-formal.",
+        details: {
+          academic: "Pedoman etika LIPI No. 5/2014. Tools: Mendeley, Turnitin, Zotero, Grammarly.",
+          scope: "Islamic Education Management, Islamic Leadership, Teacher Professional Development in Islamic Schools.",
+          publisher: "UIN Sumatera Utara."
+        }
+      },
+      {
+        id: 14,
+        title: "At-Tarbiyat: Jurnal Pendidikan Islam",
+        shortTitle: "At-Tarbiyat",
+        sinta: "SINTA Registered",
+        issn: "Terverifikasi OJS IAI An-Nawawi",
+        publisher: "IAI An-Nawawi Purworejo",
+        fees: "GRATIS / Rp0 (Submission, Fast-Track, Publication)",
+        link: "https://jurnal.iaiannawawi.ac.id/index.php/at-tarbiyat/index",
+        snippet: "Studi deradikalisasi pendidikan Islam, moderasi beragama, pesantren, dan sains Nusantara.",
+        details: {
+          academic: "Seluruh proses dipublikasikan secara cuma-cuma serta mendukung skema waiver penuh.",
+          scope: "Deradicalization of Islamic Education, Pesantren Education, Nusantara Islamic Education, Policy, Gender & Science.",
+          publisher: "IAI An-Nawawi Purworejo."
+        }
+      },
+      {
+        id: 15,
+        title: "Fon: Jurnal Pendidikan Bahasa dan Sastra Indonesia",
+        shortTitle: "Fon",
+        sinta: "SINTA Registered",
+        issn: "Terverifikasi OJS Uniku",
+        publisher: "Universitas Kuningan",
+        fees: "Submission: Rp0 | Publication Fee: Rp1.000.000",
+        link: "https://fon.uniku.ac.id/pub/index",
+        snippet: "Eksplorasi linguistik (morfologi, sintaksis, pragmatik) dan kajian pembelajaran sastra jenjang SD-PT.",
+        details: {
+          academic: "Pembayaran dilakukan setelah naskah diterima resmi melalui verifikasi pengelola.",
+          scope: "Fonologi, Sintaksis, Pragmatik, Sosiolinguistik, Ekokritik, Ekranisasi, Strategi & Bahan Ajar BIPA/PBSI.",
+          publisher: "Universitas Kuningan (UNIKU)."
+        }
+      },
+      {
+        id: 16,
+        title: "Jurnal Perspektif: Jurnal Kajian Sosiologi dan Pendidikan",
+        shortTitle: "Perspektif",
+        sinta: "SINTA Registered",
+        issn: "Terverifikasi OJS UNP",
+        publisher: "Universitas Negeri Padang",
+        fees: "GRATIS / Rp0 (Handling, Editing, Review, Publication)",
+        link: "https://perspektif.ppj.unp.ac.id/index.php/perspektif/index",
+        snippet: "Diskusi teoritis dan riset terapan fenomena sosial-budaya, masyarakat sipil, serta sosiologi pendidikan.",
+        details: {
+          academic: "Menggratiskan seluruh biaya penerbitan demi memfasilitasi riset kolaboratif sosiologi.",
+          scope: "Civil Society, Social Problems, Political & Cultural Issues, Education Policy, Curriculum & Learning, Sociology of Education.",
+          publisher: "Universitas Negeri Padang."
+        }
+      },
+      {
+        id: 17,
+        title: "J-MPI (Jurnal Manajemen Pendidikan Islam)",
+        shortTitle: "J-MPI",
+        sinta: "SINTA Registered",
+        issn: "Terverifikasi OJS UIN Malang",
+        publisher: "UIN Maulana Malik Ibrahim Malang",
+        fees: "Publication Fee: Rp750.000 (Tersedia Waiver)",
+        link: "https://ejournal.uin-malang.ac.id/index.php/jmpi/index",
+        snippet: "Inovasi kepemimpinan sekolah Islam, supervisi pendidikan, dan efektivitas kelembagaan.",
+        details: {
+          academic: "Tersedia skema waiver bagi penulis dengan pengajuan formal kendala finansial.",
+          scope: "Islamic Education Management, Islamic Education Leadership, School Supervision, Innovation in Educational Management.",
+          publisher: "UIN Maulana Malik Ibrahim Malang."
+        }
+      },
+      {
+        id: 18,
+        title: "Jurnal Integrasi Kesehatan dan Sains (JIKS)",
+        shortTitle: "JIKS",
+        sinta: "SINTA 4 (SK 158/E/KPT/2021)",
+        issn: "Format Vancouver | Georgia 12pt",
+        publisher: "Universitas Islam Bandung (UNISBA)",
+        fees: "Submission: Rp250.000 | Publication: Rp250.000 (Total Rp500.000)",
+        link: "https://ejournal.unisba.ac.id/index.php/jiks/index",
+        snippet: "Riset ilmiah kedokteran dasar, klinis, farmasi, keperawatan, dan ilmu kesehatan masyarakat.",
+        details: {
+          academic: "Terakreditasi Sinta 4. Menggunakan Blind Review, Lisensi CC BY-NC-SA 4.0, Referensi Vancouver (25-35 rujukan).",
+          scope: "Kedokteran Dasar & Klinik, Farmasi, Keperawatan, Kesehatan Masyarakat, Preventive Medicine.",
+          publisher: "Universitas Islam Bandung (UNISBA)."
+        }
+      },
+      {
+        id: 19,
+        title: "JMM (Jurnal Masyarakat Mandiri)",
+        shortTitle: "JMM",
+        sinta: "SINTA Registered",
+        issn: "Include Turnitin Check & DOI",
+        publisher: "Universitas Muhammadiyah Mataram",
+        fees: "Publication Fee: Rp1.000.000 (Maks 10 Halaman, Extra: Rp25k/Hal)",
+        link: "https://journal.ummat.ac.id/index.php/jmm/index",
+        snippet: "Publikasi terapan pengabdian masyarakat, teknologi tepat guna, dan pemberdayaan ekonomi warga.",
+        details: {
+          academic: "Fasilitas APC mencakup pendaftaran DOI, Pengecekan Turnitin, dan Layout Editing standar template.",
+          scope: "Pengabdian Masyarakat, Pelatihan Pendidikan/Pertanian, ICT Terapan, Pemberdayaan Pemuda & Komunitas.",
+          publisher: "Prodi Pendidikan Matematika, FKIP, Universitas Muhammadiyah Mataram."
+        }
+      },
+      {
+        id: 20,
+        title: "JPBIO (Jurnal Pendidikan Biologi)",
+        shortTitle: "JPBIO",
+        sinta: "SINTA Registered",
+        issn: "Terverifikasi OJS STKIP Persada",
+        publisher: "STKIP Persada Khatulistiwa Sintang",
+        fees: "Submission Nominal Rp0 (Tersedia Waiver Penuh)",
+        link: "https://jurnal.stkippersada.ac.id/jurnal/index.php/JBIO/index",
+        snippet: "Riset inovasi pengajaran biologi, penelitian tindakan kelas (PTK), lesson study, dan keanekaragaman hayati.",
+        details: {
+          academic: "Menerapkan prinsip integritas bahwa kendala finansial tidak menghambat publikasi karya berkualitas.",
+          scope: "Teaching & Learning Biology, Case Study, Lesson Study, PTK, Experiment, Learning Media, Biological Sciences.",
+          publisher: "STKIP Persada Khatulistiwa Sintang."
+        }
+      },
+      {
+        id: 21,
+        title: "Instructional Development Journal (IDJ)",
+        shortTitle: "IDJ",
+        sinta: "SINTA Registered",
+        issn: "Immediate Open Access",
+        publisher: "UIN Sultan Syarif Kasim Riau",
+        fees: "Gratis Rp0 (Khusus Collaboration Author from Abroad)",
+        link: "https://ejournal.uin-suska.ac.id/index.php/IDJ/index",
+        snippet: "Jurnal pengembangan kurikulum dan teknologi instruksional berperspektif empiris.",
+        details: {
+          academic: "Terbit 3x setahun (April, Agustus, Desember). Bebas biaya bagi penulis yang berkolaborasi secara internasional.",
+          scope: "Instruction, Learning Environment, Curriculum Development, Teacher Education, Educational Technology.",
+          publisher: "UIN Sultan Syarif Kasim Riau."
+        }
+      }
+    ];
+
+    /* ==========================================================
+       RENDER DOM & INTERACTION LOGIC
+       ========================================================== */
+    const gridContainer = document.getElementById('journalGrid');
+    const modalOverlay = document.getElementById('detailModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+    // Render Kartu Jurnal
+    function renderCards() {
+      gridContainer.innerHTML = '';
+      journalDatabase.forEach(item => {
+        const wrap = document.createElement('div');
+        wrap.className = 'card-3d-wrap';
+        
+        const isHighSinta = item.sinta.includes('SINTA 2') || item.sinta.includes('SINTA 3') || item.sinta.includes('SINTA 4');
+
+        wrap.innerHTML = `
+          <div class="journal-card" onclick="openZoomModal(${item.id})">
+            <div>
+              <span class="journal-badge ${isHighSinta ? 'sinta-high' : ''}">${item.sinta}</span>
+              <h3 class="journal-title">${item.title}</h3>
+              <div class="journal-meta">
+                <span><i class="fa-solid fa-barcode"></i> ${item.issn}</span>
+                <span><i class="fa-solid fa-building"></i> ${item.publisher}</span>
+              </div>
+              <p class="journal-snippet">${item.snippet}</p>
+            </div>
+            <div class="card-action">
+              <span class="fee-tag">${item.fees.split('|')[0]}</span>
+              <button class="btn-inspect">INSPEKSI <i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+          </div>
+        `;
+        gridContainer.appendChild(wrap);
+      });
+    }
+
+    // Modal Zoom Handler
+    function openZoomModal(id) {
+      const data = journalDatabase.find(j => j.id === id);
+      if (!data) return;
+
+      document.getElementById('modalBadge').innerText = data.sinta;
+      document.getElementById('modalTitle').innerText = data.title;
+      document.getElementById('modalAcademicInfo').innerHTML = data.details.academic + `<br><strong>ISSN:</strong> ${data.issn}`;
+      document.getElementById('modalFeeInfo').innerText = data.fees;
+      document.getElementById('modalScopeInfo').innerText = data.details.scope;
+      document.getElementById('modalPublisherInfo').innerText = data.details.publisher;
+      document.getElementById('modalJournalLink').href = data.link;
+
+      modalOverlay.classList.add('active');
+    }
+
+    modalCloseBtn.addEventListener('click', () => {
+      modalOverlay.classList.remove('active');
+    });
+
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.remove('active');
+      }
+    });
+
+    // Inisialisasi Render
+    renderCards();
+
+    /* ==========================================================
+       THREE.JS DYNAMIC 3D BACKGROUND (PARTICLES & DUST)
+       ========================================================== */
+    const canvas = document.getElementById('bg-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // Partikel Emas & Merah Krimson
+    const particleCount = 180;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    const goldColor = new THREE.Color(0xd4af37);
+    const crimsonColor = new THREE.Color(0x990000);
+
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 20;
+      positions[i + 1] = (Math.random() - 0.5) * 20;
+      positions[i + 2] = (Math.random() - 0.5) * 20;
+
+      const mixedColor = Math.random() > 0.4 ? goldColor : crimsonColor;
+      colors[i] = mixedColor.r;
+      colors[i + 1] = mixedColor.g;
+      colors[i + 2] = mixedColor.b;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+      size: 0.08,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.7
+    });
+
+    const particleSystem = new THREE.Points(geometry, material);
+    scene.add(particleSystem);
+
+    camera.position.z = 8;
+
+    // Animasi Parallax halus
+    let mouseX = 0;
+    let mouseY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      particleSystem.rotation.y += 0.0015;
+      particleSystem.rotation.x += 0.0008;
+
+      camera.position.x += (mouseX - camera.position.x) * 0.05;
+      camera.position.y += (-mouseY - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Responsive Canvas
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
